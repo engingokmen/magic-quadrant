@@ -1,26 +1,43 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useReducer, useEffect } from "react";
+import { ThemeProvider, createGlobalStyle } from "styled-components";
+import { Chart, Point, Table } from "./components";
+import { theme } from "./constants";
+import { initialState, itemsReducer } from "./reducers";
 
-function App() {
+export const App = () => {
+  const [items, dispatch] = useReducer(itemsReducer, initialState);
+
+  // recording items to localstorage
+  useEffect(() => {
+    localStorage.setItem("items", JSON.stringify(items));
+  }, [items]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <ThemeProvider theme={theme}>
+        <GlobalStyle />
+        <Chart xLabel="Completeness of vision ➞" yLabel="Ability to execute ➞">
+          {items.map((i: any) => (
+            <Point key={i.id} item={i} dispatch={dispatch} />
+          ))}
+        </Chart>
+        <Table items={items} dispatch={dispatch} />
+      </ThemeProvider>
+    </>
   );
-}
+};
 
-export default App;
+const GlobalStyle = createGlobalStyle`
+  body {
+    margin: 0;
+    font-family: sans-serif;
+  }
+  #root {
+    margin-top:100px;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:flex-start;
+    gap:40px;
+  }
+`;
